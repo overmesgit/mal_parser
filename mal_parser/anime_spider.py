@@ -1,12 +1,10 @@
 from http import HTTPStatus
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 
 from .anime import AnimeParser
 from .manga import MangaParser
 from .spider import AbstractAsyncSpider
 from .top import AnimeTopParser
-
-MANGA_ID_OFFSET = 1000000
 
 
 class AnimeTopSpider(AbstractAsyncSpider):
@@ -22,7 +20,8 @@ class AnimeTopSpider(AbstractAsyncSpider):
         return AnimeTopParser(url, html).parse()
 
     async def save_result(self, parsed_data: List[Tuple[int, str, float]]):
-        pass
+        if not parsed_data:
+            self.stop_parsing()
 
 
 class MangaTopSpider(AnimeTopSpider):
@@ -31,7 +30,8 @@ class MangaTopSpider(AnimeTopSpider):
         self.url_format = 'https://myanimelist.net/topmanga.php?limit={}'
 
     async def save_result(self, parsed_data: List[Tuple[int, str, float]]):
-        pass
+        if not parsed_data:
+            self.stop_parsing()
 
 
 class AnimeMangaSpider(AbstractAsyncSpider):
@@ -72,5 +72,6 @@ class AnimeMangaSpider(AbstractAsyncSpider):
             else:
                 return MangaParser(url, html).parse()
 
-    async def save_result(self, parsed_data: List[Tuple[int, str, float]]):
-        pass
+    async def save_result(self, parsed_data: Dict[str, Any]):
+        if parsed_data.get('errors') == 'not_found':
+            pass

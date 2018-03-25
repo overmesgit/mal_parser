@@ -6,6 +6,8 @@ from http import HTTPStatus
 import aiohttp
 import sys
 
+import async_timeout
+
 logger = logging.getLogger()
 
 
@@ -79,7 +81,7 @@ class AbstractAsyncSpider:
 
     async def _process_url(self, url):
         try:
-            with aiohttp.Timeout(30, loop=self._loop):
+            with async_timeout.timeout(30, loop=self._loop):
                 async with self._session.get(url) as response:
                     logger.info('code: {}, url: {}'.format(response.status, url))
 
